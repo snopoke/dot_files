@@ -103,7 +103,7 @@ function set_prompt() {
     _branch=${_branch#refs/heads/} # apparently faster than sed
     branch="" # need this to clear it when we leave a repo
     if [[ -n $_branch ]]; then
-       branch=" ${NIL}[${PURPLE}${_branch}${dirty}${NIL}]"
+       branch="${NIL}[${PURPLE}${_branch}${dirty}${NIL}]"
     fi
 
     # Dollar/pound sign
@@ -112,12 +112,20 @@ function set_prompt() {
     # Virtual Env
     if [[ $VIRTUAL_ENV != "" ]]
        then
-           venv=" ${RED}(${VIRTUAL_ENV##*/})"
+           venv="${RED}(${VIRTUAL_ENV##*/})"
     else
        venv=''
     fi
 
-    export PS1="${myuser}${path}${venv}${branch} ${end}"
+    # VPN
+    local vpns=`ps ax -o args | grep -v grep | grep vpnc | cut -d " " -f2 | paste -sd "," -`
+    if [ ! -z "$vpns" ] ; then
+        vpn="${NIL}(${vpns})"
+    else
+        vpn=''
+    fi
+
+    export PS1="${vpn} ${myuser}${path} ${venv} ${branch} ${end}"
 }
 
 export PROMPT_COMMAND=set_prompt
