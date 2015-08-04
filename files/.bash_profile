@@ -2,7 +2,8 @@
 # exports and vars
 ############################################
 export SCALA_HOME=~/dev/scala-2.11.6
-export PATH=$PATH:~/bin:$SCALA_HOME/bin
+export GRADLE_HOME=~/dev/gradle-2.5
+export PATH=$PATH:~/bin:$SCALA_HOME/bin:$GRADLE_HOME/bin
 export EDITOR=vi
 export M2_HOME=/home/skelly/dev/apache-maven-3.1.1
 export PYTHONSTARTUP=~/.pythonrc
@@ -45,6 +46,7 @@ alias gap='git add -p'
 alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal.commcarehq.org'
 alias cloudant_india='ssh -D 5001 -C -q -N indiacloud3'
 alias nr='sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib net-responsibility'
+alias lock='bash -c "sleep 1 && xtrlock"'
 
 
 ############################################ 
@@ -103,7 +105,7 @@ function set_prompt() {
     _branch=${_branch#refs/heads/} # apparently faster than sed
     branch="" # need this to clear it when we leave a repo
     if [[ -n $_branch ]]; then
-       branch="${NIL}[${PURPLE}${_branch}${dirty}${NIL}]"
+       branch=" ${NIL}[${PURPLE}${_branch}${dirty}${NIL}]"
     fi
 
     # Dollar/pound sign
@@ -112,7 +114,7 @@ function set_prompt() {
     # Virtual Env
     if [[ $VIRTUAL_ENV != "" ]]
        then
-           venv="${RED}(${VIRTUAL_ENV##*/})"
+           venv=" ${RED}(${VIRTUAL_ENV##*/})"
     else
        venv=''
     fi
@@ -120,12 +122,12 @@ function set_prompt() {
     # VPN
     local vpns=`ps ax -o args | grep -v grep | grep vpnc | cut -d " " -f2 | paste -sd "," -`
     if [ ! -z "$vpns" ] ; then
-        vpn="${NIL}(${vpns})"
+        vpn="${NIL}(${vpns}) "
     else
         vpn=''
     fi
 
-    export PS1="${vpn} ${myuser}${path} ${venv} ${branch} ${end}"
+    export PS1="${vpn}${myuser}${path}${venv}${branch} ${end}"
 }
 
 export PROMPT_COMMAND=set_prompt
