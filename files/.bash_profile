@@ -38,6 +38,7 @@ alias gsl="git stash list"
 alias b="git branch"
 alias uc="update-code"
 alias um="update-code; delete-merged"
+alias umobile="update-mobile-code"
 alias celery="./manage.py celeryd --verbosity=2 -c 2 --beat --statedb=celery.db --events"
 alias branch="git branch | grep '^\*' | sed 's/* //'"
 alias gpo='git push origin $(branch)'
@@ -222,6 +223,13 @@ function delete-merged() {
     fi
                                             
     git submodule foreach --recursive "git branch --merged master | grep -v '\*' | xargs -I {} bash -c 'if [ -n \"{}\" ]; then git branch -d \"{}\"; fi'"
+}
+
+function update-mobile-code() {
+    for src in "commcare" "javarosa" "commcare-odk"; do
+        (cd $src; git checkout master; git pull)&
+    done
+    until [ -z "$(ps aux | grep '[g]it pull')" ]; do sleep 1; done
 }
 
 function force-edit-url {
