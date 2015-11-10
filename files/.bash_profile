@@ -26,16 +26,13 @@ alias a="git add "
 alias o-="git checkout --"
 alias o="git checkout"
 alias om="git checkout master"
-alias ph="git push"
-alias pl="git pull"
 alias rh="git reset HEAD"
-alias mg="git merge"
 alias gl="git ls"
 alias gl5="git ls -5"
 alias gl10="git ls -10"
 alias gs="git stash"
 alias gsl="git stash list"
-alias b="git branch"
+alias br='for k in `git branch | perl -pe s/^..//`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
 alias uc="update-code"
 alias um="update-code; delete-merged"
 alias umobile="update-mobile-code"
@@ -45,8 +42,7 @@ alias gpo='git push origin $(branch)'
 alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
 alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal.commcarehq.org'
-alias cloudant_india='ssh -D 5001 -C -q -N indiacloud3'
-alias nr='sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib net-responsibility'
+alias cloudant_india='ssh -D 5001 -C -q -N indiacloud3.internal.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
 
 
