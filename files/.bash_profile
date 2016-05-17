@@ -3,12 +3,18 @@
 ############################################
 export SCALA_HOME=~/dev/scala-2.11.6
 export GRADLE_HOME=~/dev/gradle-2.5
-export PATH=$PATH:~/bin:$SCALA_HOME/bin:$GRADLE_HOME/bin
+export M2_HOME=/home/skelly/dev/apache-maven-3.3.9
+export PATH=$PATH:~/bin:$SCALA_HOME/bin:$GRADLE_HOME/bin:$M2_HOME/bin
 export EDITOR=vi
-export M2_HOME=/home/skelly/dev/apache-maven-3.1.1
 export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
+export MAVEN_OPTS="-Xmx512m"
+export CATALINA_OPTS="-Xms1024m -Xmx2048m -XX:MaxPermSize=1024m"
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt
 rs='.internal.commcarehq.org'
+va='.internal-va.commcarehq.org'
+india='.india.commcarehq.org'
 
 ############################################
 # aliases
@@ -16,7 +22,7 @@ rs='.internal.commcarehq.org'
 alias bp="sublime-text ~/.bash_profile"
 alias rl="source ~/.bash_profile"
 alias ll="ls -al"
-alias g="git"
+alias g="git"; __git_complete g _git
 alias l="git status -s"
 alias d="git diff"
 alias dc="git diff --cached"
@@ -42,7 +48,7 @@ alias gpo='git push origin $(branch)'
 alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
 alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal.commcarehq.org'
-alias cloudant_india='ssh -D 5001 -C -q -N indiacloud3.internal.commcarehq.org'
+alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
 
 
@@ -188,12 +194,13 @@ function vpn() {
 	#done
 }
 
-function vpnindia() {
-    sudo vpnc india
+function vpnva() {
+    sudo vpnc va
 }
 
 function vpndone() {
     sudo vpnc-disconnect 
+    sudo poff
 }
 
 function delete-pyc() {
@@ -232,9 +239,14 @@ function force-edit-url {
     git remote set-url origin $(gpo 2>&1 | grep Use | awk '{print $2}')
 }
 
-function delete-merged-remote() {
+function delete-origin {
+    # delete branches that have been deleted in origin
     git fetch
     git remote prune origin
+}
+
+function delete-merged-remote() {
+    delete-origin
     git branch --remote --merged master | grep -v 'master$' | sed s:origin/:: | xargs -I% git push origin :%
 }
  
@@ -251,4 +263,22 @@ function clean_time_pull() {
     dos2unix -q $1
     head -n 2 $1 | tail -n 1 
     grep -v "Time Report\|^Date,\|^Total\|^\s*$" $1 | grep "Simon Kelly" 
+}
+
+function docker_cleanup() {
+    running=$(sudo docker ps -qf name=docker-cleanup)
+    if [[ -n $running ]]; then
+      sudo docker rm -f docker-cleanup
+    fi
+    
+    sudo docker run \
+      --rm
+      -v /var/run/docker.sock:/var/run/docker.sock:rw \
+      -v /var/lib/docker:/var/lib/docker:rw \
+      -e CLEAN_PERIOD=3600 \
+      -e LOOP=false
+      -e KEEP_IMAGES=redis:latest,klaemo/couchdb:latest,postgres:9.4,python:2.7,elasticsearch:1.7.4,dimagi/commcarehq_base:latest,hqservice_postgres:latest,hqservice_elasticsearch:latest,commcarehq_web,spotify/kafka \
+      --name=docker-cleanup \
+      -d \
+      meltwater/docker-cleanup:latest
 }
