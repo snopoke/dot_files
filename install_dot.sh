@@ -14,7 +14,8 @@ confirm () {
 }
 
 install_remote_files() {
-	confirm "Install git completion?" && sudo sh -c "curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash > /etc/bash_completion.d/git-completion"
+    confirm "Install git completion?" && sudo sh -c "curl https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash > /etc/bash_completion.d/git-completion"
+    confirm "Install dropbox command line?" && wget -O ~/bin/dropbox "https://www.dropbox.com/download?dl=packages/dropbox.py" && chmod +x ~/bin/dropbox
 }
 
 confirm "Install local files?" && stow -t ~ files
