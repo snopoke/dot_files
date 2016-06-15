@@ -1,4 +1,65 @@
-import os, IPython
-os.environ['PYTHONSTARTUP'] = ''  # Prevent running this again
-IPython.start_ipython()
-raise SystemExit
+#
+# Python startup script
+#
+# To enable, add
+#    export PYTHONSTARTUP=~/.python
+# to your ~/.bashrc
+#
+# For more information see http://www.norvig.com/python-iaq.html
+# and also Tarek Ziade's _Expert_Pythom_Programming_ page 19
+#
+import os
+import sys
+
+# Coloured prompt
+if os.getenv('TERM') in ('xterm', 'xterm-256color', 'screen', 'screen-256color', 'vt100', 'rxvt', 'Eterm', 'putty'):
+    try:
+        import readline
+    except ImportError:
+        pass
+    else:
+        sys.ps1 = '\001\033[0;32m\002>>> \001\033[0m\002'
+        sys.ps2 = '\001\033[0;32m\002... \001\033[0m\002'
+
+# Tab-completion!
+try:
+    import readline  # noqa: imported for side effects only
+except ImportError:
+    print("Module readline not available.")
+else:
+    # Persistent history!
+    histfile = os.path.expanduser('~/.pythonhistory')
+    try:
+        readline.read_history_file(histfile)
+    except IOError:
+        pass
+    import atexit
+    def write_history(readline=readline, histfile=histfile):
+        try:
+            readline.write_history_file(histfile)
+        except IOError:
+            # root, nfs-mounted home with root_squash -> permission denied
+            pass
+    atexit.register(write_history)
+    del histfile, atexit, write_history
+    # Tab completion
+    try:
+        sys.path.append(os.path.join(os.getenv('HOME'), 'src', 'rlcompleter2'))
+        import rlcompleter2
+        rlcompleter2.setup()
+        del rlcompleter2
+    except ImportError:
+        import rlcompleter
+        readline.parse_and_bind("tab: complete")
+        del rlcompleter
+    del readline
+
+# reload() on Python 3
+try:
+    reload
+except NameError:
+    from importlib import reload
+
+# Cleanup
+del sys
+del os

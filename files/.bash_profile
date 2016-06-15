@@ -6,7 +6,7 @@ export GRADLE_HOME=~/dev/gradle-2.5
 export M2_HOME=/home/skelly/dev/apache-maven-3.3.9
 export PATH=$PATH:~/bin:$SCALA_HOME/bin:$GRADLE_HOME/bin:$M2_HOME/bin
 export EDITOR=vi
-export PYTHONSTARTUP=~/.pythonrc
+test -f ~/.pythonrc && export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
 export MAVEN_OPTS="-Xmx512m"
 export CATALINA_OPTS="-Xms1024m -Xmx2048m -XX:MaxPermSize=1024m"
@@ -50,6 +50,7 @@ alias gap='git add -p'
 alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal.commcarehq.org'
 alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
+alias start_docker='cd ~/src/cchq && ./dockerhq.sh services start && sleep 3 && docker rm -f hqservice_kafka_1 && ./dockerhq.sh services start'
 
 
 ############################################ 
@@ -208,7 +209,7 @@ function delete-pyc() {
 }
 
 function pull-latest-master() {
-    git checkout master; git pull &
+    git checkout master; git pull origin master &
     git submodule foreach --recursive 'git checkout master; git pull origin master &'
     until [ -z "$(ps aux | grep '[g]it pull')" ]; do sleep 1; done
 }
