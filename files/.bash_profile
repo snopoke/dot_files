@@ -50,7 +50,8 @@ alias gap='git add -p'
 alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal.commcarehq.org'
 alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
-alias start_docker='cd ~/src/cchq && ./dockerhq.sh services start && sleep 3 && docker rm -f hqservice_kafka_1 && ./dockerhq.sh services start'
+alias start_docker='cd ~/src/cchq && ./scripts/docker up -d'
+alias go='start_docker& start_agent'
 
 
 ############################################ 
