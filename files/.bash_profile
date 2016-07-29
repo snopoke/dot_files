@@ -11,7 +11,6 @@ export TERM="xterm-color"
 export MAVEN_OPTS="-Xmx512m"
 export CATALINA_OPTS="-Xms1024m -Xmx2048m -XX:MaxPermSize=1024m"
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-export ANSIBLE_VAULT_PASSWORD_FILE=~/.vault_pass.txt
 rs='.internal.commcarehq.org'
 va='.internal-va.commcarehq.org'
 india='.india.commcarehq.org'
@@ -52,6 +51,7 @@ alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
 alias start_docker='cd ~/src/cchq && ./scripts/docker up -d'
 alias go='start_docker& start_agent'
+alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
 
 
 ############################################ 
