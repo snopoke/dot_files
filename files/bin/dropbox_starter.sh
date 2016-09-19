@@ -5,16 +5,6 @@
 # $ HOME="/media/skelly/data/simon_dropbox"
 # $ /home/skelly/.dropbox-dist/dropboxd
 
-DRIVE="/dev/sdb2"
-UUID="D6162E3A162E1C4D"
-
-# Ensure drive mounted
-mount | grep $DRIVE > /dev/null
-if [ $? -eq 1 ]; then
-	echo "Mounting drive"
-	udisksctl mount --block-device /dev/disk/by-uuid/$UUID
-fi
-
 function start_dropbox {
 	HOME="$1"
 	cd $HOME
@@ -25,5 +15,5 @@ function start_dropbox {
 	fi
 }	
 
-start_dropbox "/home/skelly"
-start_dropbox "/media/skelly/data/simon_dropbox"
+start_dropbox "/home/skelly/dropbox_dimagi"
+start_dropbox "/home/skelly/dropbox_simon"
