@@ -11,6 +11,7 @@ export TERM="xterm-color"
 export MAVEN_OPTS="-Xmx512m"
 export CATALINA_OPTS="-Xms1024m -Xmx2048m -XX:MaxPermSize=1024m"
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export REUSE_DB=1
 rs='.internal.commcarehq.org'
 va='.internal-va.commcarehq.org'
 india='.india.commcarehq.org'
@@ -46,7 +47,7 @@ alias branch="git branch | grep '^\*' | sed 's/* //'"
 alias gpo='git push origin $(branch)'
 alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
-alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal.commcarehq.org'
+alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal-va.commcarehq.org'
 alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
 alias start_docker='cd ~/src/cchq && ./scripts/docker up -d'
@@ -172,6 +173,12 @@ fi
 function fix_pycharm {
     # https://youtrack.jetbrains.com/issue/IDEA-78860
     ibus-daemon -rd
+}
+
+function clear_kafka {
+  sudo rm -r ~/.local/share/dockerhq/zookeeper ~/.local/share/dockerhq/kafka
+  ./scripts/docker restart
+  ./manage.py create_kafka_topics
 }
 
 function hammer() {                                                                                  
