@@ -15,11 +15,12 @@ export REUSE_DB=1
 rs='.internal.commcarehq.org'
 va='.internal-va.commcarehq.org'
 india='.india.commcarehq.org'
+nic='.icds-cas.gov.in'
 
 ############################################
 # aliases
 ############################################
-alias bp="sublime-text ~/.bash_profile"
+alias bp="subl ~/.bash_profile"
 alias rl="source ~/.bash_profile"
 alias ll="ls -al"
 alias g="git"; __git_complete g _git
@@ -38,6 +39,7 @@ alias gl5="git ls -5"
 alias gl10="git ls -10"
 alias gs="git stash"
 alias gsl="git stash list"
+alias blame="git log -p -M --follow --stat -- "
 alias br='for k in `git branch | perl -pe s/^..//`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
 alias uc="update-code"
 alias um="update-code; delete-merged"
@@ -51,7 +53,7 @@ alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal-va.commcarehq.org'
 alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
 alias lock='bash -c "sleep 1 && xtrlock"'
 alias start_docker='cd ~/src/cchq && ./scripts/docker up -d'
-alias go='start_docker& start_agent'
+alias go='start_docker'
 alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
 
 
@@ -197,7 +199,7 @@ function gsa() {
 function vpn() {
 	sudo vpnc rackspace
 	#uuid=`nmcli con | grep rackspace | awk '{print $2}'`
-	#until nmcli c up uuid $uuid; do
+	#until nmcli c up id Softlayer; do
 	#  echo Retrying in 5 seconds...
 	#  sleep 5
 	#done
@@ -209,7 +211,6 @@ function vpnva() {
 
 function vpndone() {
     sudo vpnc-disconnect 
-    sudo poff
 }
 
 function delete-pyc() {

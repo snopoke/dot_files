@@ -8,12 +8,19 @@
 function start_dropbox {
 	HOME="$1"
 	cd $HOME
+	PID=`pgrep -u skelly -o dropbox`
+	if [ -n "$PID" ]; then
+		echo "Killing existing process"
+		kill $PID
+	fi
 	dropbox running
 	if [ $? -eq 0 ]; then
-	    echo "Starting Dimagi Dropbox in $HOME"
+	    echo "Starting Dropbox in $HOME"
 	    /home/skelly/.dropbox-dist/dropboxd &
 	fi
 }	
 
-start_dropbox "/home/skelly/dropbox_dimagi"
-start_dropbox "/home/skelly/dropbox_simon"
+ACCOUNT=$1
+echo "Starting '$ACCOUNT' Dropbox"
+
+start_dropbox "/home/skelly/dropbox_${ACCOUNT}"
