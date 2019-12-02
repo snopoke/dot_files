@@ -1,26 +1,32 @@
 ############################################
 # exports and vars
 ############################################
-export SCALA_HOME=~/dev/scala-2.11.6
 export GRADLE_HOME=~/dev/gradle-2.5
-export M2_HOME=/home/skelly/dev/apache-maven-3.3.9
-export PATH=$PATH:~/bin:$SCALA_HOME/bin:$GRADLE_HOME/bin:$M2_HOME/bin
+export PATH=$PATH:~/bin:~/dev/go/bin
 export EDITOR=vi
 test -f ~/.pythonrc && export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
-export MAVEN_OPTS="-Xmx512m"
-export CATALINA_OPTS="-Xms1024m -Xmx2048m -XX:MaxPermSize=1024m"
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export REUSE_DB=1
+export PYTHONDONTWRITEBYTECODE=1
+export ANSIBLE_HOST_KEY_CHECKING=False
+export ANSIBLE_NOCOWS=1
+export WORKON_HOME=~/.virtualenvs
+export COMMCARE_CLOUD_ENVIRONMENTS=/media/data/src/hqansible/environments
+source /usr/local/bin/virtualenvwrapper.sh
+
+# commcare-cloud
+export PATH=$PATH:~/.commcare-cloud/bin
+
 rs='.internal.commcarehq.org'
 va='.internal-va.commcarehq.org'
 india='.india.commcarehq.org'
 nic='.icds-cas.gov.in'
+tb='.enikshay.in'
 
 ############################################
 # aliases
 ############################################
-alias bp="subl ~/.bash_profile"
+alias bp="atom ~/.bash_profile"
 alias rl="source ~/.bash_profile"
 alias ll="ls -al"
 alias g="git"; __git_complete g _git
@@ -41,23 +47,18 @@ alias gs="git stash"
 alias gsl="git stash list"
 alias blame="git log -p -M --follow --stat -- "
 alias br='for k in `git branch | perl -pe s/^..//`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
-alias uc="update-code"
-alias um="update-code; delete-merged"
-alias umobile="update-mobile-code"
-alias celery="./manage.py celeryd --verbosity=2 -c 2 --beat --statedb=celery.db --events"
+alias uc="update-code-sk"
+alias um="update-code-sk; delete-merged"
 alias branch="git branch | grep '^\*' | sed 's/* //'"
 alias gpo='git push origin $(branch)'
 alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
-alias cloudant='ssh -D 5000 -C -q -N hqdb0.internal-va.commcarehq.org'
-alias cloudant-india='ssh -D 5001 -C -q -N db0.india.commcarehq.org'
+alias cloudant='ssh -D 5000 -C -q -N 10.202.10.233 -v'
 alias lock='bash -c "sleep 1 && xtrlock"'
-alias start_docker='cd ~/src/cchq && ./scripts/docker up -d'
-alias go='start_docker'
+alias start_docker='cd ~/src/cchq && ./scripts/docker up -d && ./scripts/docker citus up -d'
 alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
 
-
-############################################ 
+############################################
 # PROMPT
 # http://engineerwithoutacause.com/show-current-virtualenv-on-bash-prompt.html
 ############################################
@@ -128,14 +129,14 @@ function set_prompt() {
     fi
 
     # VPN
-    local vpns=`ps ax -o args | grep -v grep | grep vpnc | cut -d " " -f2 | paste -sd "," -`
+    local vpns=`vpnshow`
     if [ ! -z "$vpns" ] ; then
         vpn="${NIL}(${vpns}) "
     else
         vpn=''
     fi
 
-    export PS1="${vpn}${myuser}${path}${venv}${branch} ${end}"
+    export PS1="\[\e]0;\u@\h: \w\a\]${vpn}${myuser}${path}${venv}${branch} ${end}"
 }
 
 export PROMPT_COMMAND=set_prompt
@@ -172,6 +173,13 @@ fi
 # Utility functions
 ############################################
 
+function tunnel {
+  HOST="$1"
+  REMOTE_PORT="$2"
+  LOCAL_PORT="${3:-5000}"
+  ssh -L localhost:$LOCAL_PORT:$HOST:$REMOTE_PORT $HOST -v
+}
+
 function fix_pycharm {
     # https://youtrack.jetbrains.com/issue/IDEA-78860
     ibus-daemon -rd
@@ -183,34 +191,59 @@ function clear_kafka {
   ./manage.py create_kafka_topics
 }
 
-function hammer() {                                                                                  
-    git checkout master                                                                              
-    git pull origin master                                                                           
-    git submodule update --init --recursive                                                          
-    pip install -r requirements/requirements.txt                                                        
-    find . -name '*.pyc' -delete                                                                  
-    ./manage.py migrate                                                  
-}  
+function hammer() {
+    git checkout master
+    git pull origin master
+    git submodule update --init --recursive
+    update-code-sk
+    delete-merged
+    pip install -r requirements/requirements.txt
+    find . -name '*.pyc' -delete
+    ./manage.py migrate
+}
 
 function gsa() {
 	git stash apply "stash@{$1}"
 }
 
-function vpn() {
-	sudo vpnc rackspace
-	#uuid=`nmcli con | grep rackspace | awk '{print $2}'`
-	#until nmcli c up id Softlayer; do
-	#  echo Retrying in 5 seconds...
-	#  sleep 5
-	#done
+function vpnshow() {
+  vpns1=`ps ax -o args | grep -v grep | grep vpnc | cut -d " " -f2 | paste -sd "," -`
+  vpns2=`nmcli c show --active | grep vpn | cut -d' ' -f1 | paste -sd "," -`
+  printf "$vpns1\n$vpns2" | grep -Ev "^$" | paste -sd ","
 }
 
-function vpnva() {
-    sudo vpnc va
+function vu() {
+    vpn=$1
+    if [ "$vpn" == "prod" ]; then
+      nmcli c up aws_prod
+    elif [ "$vpn" == "staging" ]; then
+      nmcli c up aws_staging
+    elif [ "$vpn" == "india" ]; then
+      nmcli c up aws_india
+      #MotionPro &
+    elif [ "$vpn" == "tcl" ]; then
+      sudo openfortivpn -c /etc/openfortivpn/tcl.config
+    elif [ "$vpn" == "va" ]; then
+      sudo vpnc-connect rackspace-va
+    else
+      nmcli c up "$vpn"
+    fi
 }
 
-function vpndone() {
-    sudo vpnc-disconnect 
+function vd() {
+    vpn="$1"
+    if [ "$vpn" == "prod" ]; then
+      nmcli c down aws_prod
+    elif [ "$vpn" == "staging" ]; then
+      nmcli c down aws_staging
+    elif [ "$vpn" == "india" ]; then
+      nmcli c down aws_india
+      #MotionPro &
+    elif [ "$vpn" == "va" ]; then
+      sudo vpnc-disconnect
+    else
+      nmcli c down "$vpn"
+    fi
 }
 
 function delete-pyc() {
@@ -223,19 +256,21 @@ function pull-latest-master() {
     until [ -z "$(ps aux | grep '[g]it pull')" ]; do sleep 1; done
 }
 
-function update-code() {
+function update-code-sk() {
     pull-latest-master
     echo "Deleteing all compiled python"
     delete-pyc
 }
- 
+
 function delete-merged() {
     if [ $(branch) = 'master' ]
         then git branch --merged master | grep -v '\*' | xargs -I {} bash -c 'if [ -n "{}" ]; then git branch -d "{}"; fi'
         else echo "You are not on branch master"
     fi
-                                            
+
     git submodule foreach --recursive "git branch --merged master | grep -v '\*' | xargs -I {} bash -c 'if [ -n \"{}\" ]; then git branch -d \"{}\"; fi'"
+
+    git remote prune origin
 }
 
 function update-mobile-code() {
@@ -259,11 +294,11 @@ function delete-merged-remote() {
     delete-origin
     git branch --remote --merged master | grep -v 'master$' | sed s:origin/:: | xargs -I% git push origin :%
 }
- 
+
 function es-list() {
     curl -s 'http://localhost:9200/_status' | jsawk 'return Object.keys(this.indices).join("\n")'
 }
- 
+
 function es-alias() {
     curl -XPOST 'http://localhost:9200/_aliases' -d \
         '{ "actions": [ {"add": {"index": "'"$1"'_'"$2"'", "alias": "'$1'"}}]}'
@@ -271,8 +306,8 @@ function es-alias() {
 
 function clean_time_pull() {
     dos2unix -q $1
-    head -n 2 $1 | tail -n 1 
-    grep -v "Time Report\|^Date,\|^Total\|^\s*$" $1 | grep "Simon Kelly" 
+    head -n 2 $1 | tail -n 1
+    grep -v "Time Report\|^Date,\|^Total\|^\s*$" $1 | grep "Simon Kelly"
 }
 
 function docker_cleanup() {
@@ -280,7 +315,7 @@ function docker_cleanup() {
     if [[ -n $running ]]; then
       sudo docker rm -f docker-cleanup
     fi
-    
+
     sudo docker run \
       --rm
       -v /var/run/docker.sock:/var/run/docker.sock:rw \
@@ -292,3 +327,5 @@ function docker_cleanup() {
       -d \
       meltwater/docker-cleanup:latest
 }
+# added by gpg-scripts on Thu Feb 23 15:25:11 SAST 2017
+export PATH=$PATH:/home/skelly/src/gpg-scripts
