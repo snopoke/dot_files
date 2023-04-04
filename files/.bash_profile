@@ -2,7 +2,7 @@
 # exports and vars
 ############################################
 export GRADLE_HOME=~/dev/gradle-2.5
-export PATH=$PATH:~/bin:~/dev/go/bin:~/.local/bin
+export PATH=$PATH:~/bin
 export EDITOR=vi
 test -f ~/.pythonrc && export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
@@ -14,8 +14,6 @@ export WORKON_HOME=~/.virtualenvs
 export COMMCARE_CLOUD_ENVIRONMENTS=/home/skelly/src/commcare-cloud/environments
 export COMMCARE_CLOUD_USE_AWS_SSM=1
 export CCHQ_STRICT_WARNINGS=1
-# source /usr/local/bin/virtualenvwrapper.sh
-# source /home/skelly/.rvm/scripts/rvm
 
 # commcare-cloud
 export PATH=$PATH:~/.commcare-cloud/bin
@@ -26,16 +24,16 @@ export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 india='.india.commcarehq.org'
 
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
 eval "$(direnv hook bash)"
 
 ############################################
 # aliases
 ############################################
-alias bp="atom ~/.bash_profile"
+alias bp="codium ~/.bash_profile"
 alias rl="source ~/.bash_profile"
 alias ll="ls -al"
 alias g="git"; __git_complete g _git
@@ -148,15 +146,7 @@ function set_prompt() {
        venv=''
     fi
 
-    # VPN
-    local vpns=`vpnshow`
-    if [ ! -z "$vpns" ] ; then
-        vpn="${NIL}(${vpns}) "
-    else
-        vpn=''
-    fi
-
-    export PS1="\[\e]0;\u@\h: \w\a\]${vpn}${myuser}${path}${venv}${branch} ${end}"
+    export PS1="\[\e]0;\u@\h: \w\a\]${myuser}${path}${venv}${branch} ${end}"
     # simple ps1 for demos
     # export PS1="\[\e]0;\u@\h: \w\a\] ${end}"
 }
@@ -348,7 +338,3 @@ function docker_cleanup() {
       -d \
       meltwater/docker-cleanup:latest
 }
-# added by gpg-scripts on Thu Feb 23 15:25:11 SAST 2017
-export PATH=$PATH:/home/skelly/dev/gpg-scripts
-
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
