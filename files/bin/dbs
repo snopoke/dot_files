@@ -8,19 +8,25 @@
 function start_dropbox {
 	HOME="$1"
 	cd $HOME
-	PID=`pgrep -u skelly -o dropbox`
-	if [ -n "$PID" ] && [ "$PID" != "$$" ]; then
-		echo "Killing existing process"
-		kill $PID
+	PIDFLE="$HOME/.dropbox/dropbox.pid"
+	PID=$(cat $PIDFLE)
+	grep dropbox "/proc/$PID/cmdline" -q
+	if [ "$?" -eq "0" ]; then
+		echo "Dropbox alreading running in $HOME"
+	else
+		echo "Starting Dropbox in $HOME"
+		$HOME/.dropbox-dist/dropboxd &
 	fi
-	dropbox running
-	if [ $? -eq 0 ]; then
-	    echo "Starting Dropbox in $HOME"
-	    /home/skelly/.dropbox-dist/dropboxd &
-	fi
-}	
+}
 
-ACCOUNT=$1
-echo "Starting '$ACCOUNT' Dropbox"
+PATH_PREFIX='/home/skelly/dropbox_'
 
-start_dropbox "/media/data/dropbox_${ACCOUNT}"
+if [ $# -eq 0 ]; then
+	for account in dimagi simon
+	do
+		start_dropbox "${PATH_PREFIX}${account}"
+	done
+else
+	ACCOUNT=$1
+	start_dropbox "${PATH_PREFIX}${ACCOUNT}"
+fi

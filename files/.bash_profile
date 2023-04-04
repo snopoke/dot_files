@@ -2,7 +2,7 @@
 # exports and vars
 ############################################
 export GRADLE_HOME=~/dev/gradle-2.5
-export PATH=$PATH:~/bin:~/dev/go/bin
+export PATH=$PATH:~/bin:~/dev/go/bin:~/.local/bin
 export EDITOR=vi
 test -f ~/.pythonrc && export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
@@ -11,17 +11,26 @@ export PYTHONDONTWRITEBYTECODE=1
 export ANSIBLE_HOST_KEY_CHECKING=False
 export ANSIBLE_NOCOWS=1
 export WORKON_HOME=~/.virtualenvs
-export COMMCARE_CLOUD_ENVIRONMENTS=/media/data/src/hqansible/environments
-source /usr/local/bin/virtualenvwrapper.sh
+export COMMCARE_CLOUD_ENVIRONMENTS=/home/skelly/src/commcare-cloud/environments
+export COMMCARE_CLOUD_USE_AWS_SSM=1
+export CCHQ_STRICT_WARNINGS=1
+# source /usr/local/bin/virtualenvwrapper.sh
+# source /home/skelly/.rvm/scripts/rvm
 
 # commcare-cloud
 export PATH=$PATH:~/.commcare-cloud/bin
 
-rs='.internal.commcarehq.org'
-va='.internal-va.commcarehq.org'
+# fly.io
+export FLYCTL_INSTALL="/home/skelly/.fly"
+export PATH="$FLYCTL_INSTALL/bin:$PATH"
+
 india='.india.commcarehq.org'
-nic='.icds-cas.gov.in'
-tb='.enikshay.in'
+
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+eval "$(direnv hook bash)"
 
 ############################################
 # aliases
@@ -47,16 +56,27 @@ alias gs="git stash"
 alias gsl="git stash list"
 alias blame="git log -p -M --follow --stat -- "
 alias br='for k in `git branch | perl -pe s/^..//`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
-alias uc="update-code-sk"
-alias um="update-code-sk; delete-merged"
-alias branch="git branch | grep '^\*' | sed 's/* //'"
+alias um="update-code-sk"
+alias umm="update-code-sk main"
+alias umf="update-code-sk formplayer"
+alias umd="update-code-sk develop"
+alias dm="delete-merged"
+alias branch="git current-branch"
 alias gpo='git push origin $(branch)'
 alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
-alias cloudant='ssh -D 5000 -C -q -N 10.202.10.233 -v'
+alias gu='git pull origin $(branch)'
 alias lock='bash -c "sleep 1 && xtrlock"'
 alias start_docker='cd ~/src/cchq && ./scripts/docker up -d && ./scripts/docker citus up -d'
 alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
+alias ccp="cchq production"
+alias ccpssh="cchq production ssh"
+alias elastichq="docker run -p 5000:5000 elastichq/elasticsearch-hq"
+alias peek="flatpak run com.uploadedlobster.peek"
+alias hq-up="./scripts/docker up -d postgres couch redis elasticsearch2 zookeeper kafka minio formplayer"
+alias hq-up-min="./scripts/docker up -d postgres couch redis elasticsearch2 zookeeper kafka minio"
+alias docker-compose="docker compose"
+alias workon="pyenv activate"
 
 ############################################
 # PROMPT
@@ -137,6 +157,8 @@ function set_prompt() {
     fi
 
     export PS1="\[\e]0;\u@\h: \w\a\]${vpn}${myuser}${path}${venv}${branch} ${end}"
+    # simple ps1 for demos
+    # export PS1="\[\e]0;\u@\h: \w\a\] ${end}"
 }
 
 export PROMPT_COMMAND=set_prompt
@@ -250,25 +272,29 @@ function delete-pyc() {
     find . -name '*.pyc' -delete
 }
 
-function pull-latest-master() {
-    git checkout master; git pull origin master &
-    git submodule foreach --recursive 'git checkout master; git pull origin master &'
+function pull-latest-branch() {
+    branch=${1:-master}
+    git checkout $branch; git pull origin $branch &
+    git submodule foreach --recursive "git checkout $branch; git pull origin $branch &"
     until [ -z "$(ps aux | grep '[g]it pull')" ]; do sleep 1; done
 }
 
 function update-code-sk() {
-    pull-latest-master
+    pull-latest-branch $1
     echo "Deleteing all compiled python"
     delete-pyc
+    git submodule update --init --recursive
+    delete-merged $1
 }
 
 function delete-merged() {
-    if [ $(branch) = 'master' ]
-        then git branch --merged master | grep -v '\*' | xargs -I {} bash -c 'if [ -n "{}" ]; then git branch -d "{}"; fi'
-        else echo "You are not on branch master"
+    branch=${1:-master}
+    if [ $(branch) = $branch ]
+        then git branch --merged $branch | grep -v '\*' | xargs -I {} bash -c 'if [ -n "{}" ]; then git branch -d "{}"; fi'
+        else echo "You are not on branch $branch"
     fi
 
-    git submodule foreach --recursive "git branch --merged master | grep -v '\*' | xargs -I {} bash -c 'if [ -n \"{}\" ]; then git branch -d \"{}\"; fi'"
+    git submodule foreach --recursive "git branch --merged $branch | grep -v '\*' | xargs -I {} bash -c 'if [ -n \"{}\" ]; then git branch -d \"{}\"; fi'"
 
     git remote prune origin
 }
@@ -291,6 +317,7 @@ function delete-origin {
 }
 
 function delete-merged-remote() {
+    # delete branches on remote that have been merged
     delete-origin
     git branch --remote --merged master | grep -v 'master$' | sed s:origin/:: | xargs -I% git push origin :%
 }
@@ -302,12 +329,6 @@ function es-list() {
 function es-alias() {
     curl -XPOST 'http://localhost:9200/_aliases' -d \
         '{ "actions": [ {"add": {"index": "'"$1"'_'"$2"'", "alias": "'$1'"}}]}'
-}
-
-function clean_time_pull() {
-    dos2unix -q $1
-    head -n 2 $1 | tail -n 1
-    grep -v "Time Report\|^Date,\|^Total\|^\s*$" $1 | grep "Simon Kelly"
 }
 
 function docker_cleanup() {
@@ -328,4 +349,6 @@ function docker_cleanup() {
       meltwater/docker-cleanup:latest
 }
 # added by gpg-scripts on Thu Feb 23 15:25:11 SAST 2017
-export PATH=$PATH:/home/skelly/src/gpg-scripts
+export PATH=$PATH:/home/skelly/dev/gpg-scripts
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*

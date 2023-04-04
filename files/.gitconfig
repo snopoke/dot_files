@@ -1,11 +1,12 @@
 [user]
-    name = Simon Kelly
-    email = skelly@dimagi.com
+	name = Simon Kelly
+	email = skelly@dimagi.com
 
 [color]
     branch = auto
     diff = auto
     status = auto
+    ui = always
 
 [color "branch"]
     current = red reverse
@@ -27,6 +28,7 @@
     default = upstream
 [pull]
     default = current
+	rebase = false
 [diff]
   memonicprefix = true
   renameLimit = 2000
@@ -52,7 +54,7 @@
     ai = add --interactive
 
     co = checkout
-    br = branch 
+    br = branch
     bra = branch -ra
 
     #list commands
@@ -101,6 +103,8 @@
     #grep on filename
     f = "!git ls-files | grep -i"
 
+		current-branch = rev-parse --abbrev-ref HEAD
+
     #rename branch tree to done-
     done = "!f() { git branch | grep "$1" | cut -c 3- | grep -v done | xargs -I{} git branch -m {} done-{}; }; f"
 
@@ -127,6 +131,16 @@
     lap = "!f() { git --git-dir=$1 format-patch -k -1 --stdout $2 | git am -3 -k; }; f"
 
     #subtree add
-    sba = "!f() { git subtree add --prefix $2 $1 master --squash; }; f" 
+    sba = "!f() { git subtree add --prefix $2 $1 master --squash; }; f"
 [core]
 	editor = vi
+    page = /usr/share/doc/git/contrib/diff-highlight/diff-highlight | less
+	autocrlf = input
+[init]
+	defaultBranch = main
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
