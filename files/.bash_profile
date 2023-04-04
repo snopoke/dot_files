@@ -28,7 +28,6 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
-eval "$(direnv hook bash)"
 
 ############################################
 # aliases
@@ -338,3 +337,5 @@ function docker_cleanup() {
       -d \
       meltwater/docker-cleanup:latest
 }
+
+eval "$(direnv hook bash)"
