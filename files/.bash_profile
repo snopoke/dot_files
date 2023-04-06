@@ -15,6 +15,12 @@ export COMMCARE_CLOUD_ENVIRONMENTS=/home/skelly/src/commcare-cloud/environments
 export COMMCARE_CLOUD_USE_AWS_SSM=1
 export CCHQ_STRICT_WARNINGS=1
 
+# git-prompt
+export GIT_PS1_SHOWDIRTYSTATE=1  # shown as '*' for unsaged and '+' for staged
+export GIT_PS1_SHOWSTASHSTATE=1  # shown as '$'
+export GIT_PS1_SHOWUNTRACKEDFILES=1  # shown as '%'
+export GIT_PS1_SHOWCOLORHINTS=1
+
 # commcare-cloud
 export PATH=$PATH:~/.commcare-cloud/bin
 
@@ -28,6 +34,8 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
+source ~/.git-prompt.sh
+source ~/.git-completion.bash
 
 ############################################
 # aliases
@@ -101,6 +109,7 @@ UC=$GREEN
 LC=$BLUE
 HD=$FULL
 
+
 # Prompt function because PROMPT_COMMAND is awesome
 function set_prompt() {
     # show the host only and be done with it.
@@ -120,20 +129,6 @@ function set_prompt() {
     path="${LC}${_dirname}${NIL}"
     myuser="${UC}\u@${NIL}"
 
-    # Dirtiness from:
-    # http://henrik.nyh.se/2008/12/git-dirty-prompt#comment-8325834
-    if git update-index -q --refresh 2>/dev/null; git diff-index --quiet --cached HEAD --ignore-submodules -- 2>/dev/null && git diff-files --quiet --ignore-submodules 2>/dev/null
-        then dirty=""
-    else
-       dirty="${RED}*${NIL}"
-    fi
-    _branch=$(git symbolic-ref HEAD 2>/dev/null)
-    _branch=${_branch#refs/heads/} # apparently faster than sed
-    branch="" # need this to clear it when we leave a repo
-    if [[ -n $_branch ]]; then
-       branch=" ${NIL}[${PURPLE}${_branch}${dirty}${NIL}]"
-    fi
-
     # Dollar/pound sign
     end="${LC}\$${NIL} "
 
@@ -144,8 +139,9 @@ function set_prompt() {
     else
        venv=''
     fi
-
-    export PS1="\[\e]0;\u@\h: \w\a\]${myuser}${path}${venv}${branch} ${end}"
+    
+    GIT='$(__git_ps1 " (%s)")'
+    export PS1="\[\e]0;\u@\h: \w\a\]${myuser}${path}${venv}${NIL}${GIT}${end}"
     # simple ps1 for demos
     # export PS1="\[\e]0;\u@\h: \w\a\] ${end}"
 }
