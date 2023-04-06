@@ -43,7 +43,7 @@ source ~/.git-completion.bash
 alias bp="codium ~/.bash_profile"
 alias rl="source ~/.bash_profile"
 alias ll="ls -al"
-alias g="git"; __git_complete g _git
+alias g="git"; __git_complete g __git_main
 alias l="git status -s"
 alias d="git diff"
 alias dc="git diff --cached"
