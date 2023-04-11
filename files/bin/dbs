@@ -1,18 +1,22 @@
 #!/bin/bash
 # Install dropbox via normal method then:
-# $ mkdir /media/skelly/data/simon_dropbox
-# $ ln -s ~/.Xauthority /media/skelly/data/simon_dropbox/
-# $ HOME="/media/skelly/data/simon_dropbox"
-# $ /home/skelly/.dropbox-dist/dropboxd
+# $ mkdir ~/dropbox_simon
+# $ mv ~/.dropbox-dist ~/dropbox_simon
+# $ HOME="~/dropbox_simon"
+# $ $HOME/.dropbox-dist/dropboxd
 
 function start_dropbox {
 	HOME="$1"
+	if [ ! -d "$HOME" ]; then
+	  return
+	fi
+
 	cd $HOME
 	PIDFLE="$HOME/.dropbox/dropbox.pid"
 	PID=$(cat $PIDFLE)
 	grep dropbox "/proc/$PID/cmdline" -q
 	if [ "$?" -eq "0" ]; then
-		echo "Dropbox alreading running in $HOME"
+		echo "Dropbox already running in $HOME"
 	else
 		echo "Starting Dropbox in $HOME"
 		$HOME/.dropbox-dist/dropboxd &
