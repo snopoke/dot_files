@@ -18,6 +18,7 @@ brew
 pyenv
 stow
 libpq-dev (postgres)
+nvm & node
 
 # for building python: https://github.com/pyenv/pyenv/wiki#suggested-build-environment
 sudo apt install build-essential libssl-dev zlib1g-dev \
