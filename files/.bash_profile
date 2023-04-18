@@ -22,7 +22,7 @@ export GIT_PS1_SHOWUNTRACKEDFILES=1  # shown as '%'
 export GIT_PS1_SHOWCOLORHINTS=1
 
 # commcare-cloud
-export PATH=$PATH:~/.commcare-cloud/bin
+source ~/.commcare-cloud/load_config.sh
 
 # fly.io
 export FLYCTL_INSTALL="/home/skelly/.fly"
