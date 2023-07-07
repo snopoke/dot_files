@@ -13,11 +13,11 @@ git
 jq
 docker
 java
-brew install direnv
-brew
+direnv
 pyenv
 stow
 libpq-dev (postgres)
+flyctl
 nvm & node
 
 # for building python: https://github.com/pyenv/pyenv/wiki#suggested-build-environment

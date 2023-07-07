@@ -30,7 +30,6 @@ export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 india='.india.commcarehq.org'
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
