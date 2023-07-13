@@ -20,5 +20,6 @@ install_remote_files() {
     confirm "Install git diff highlight?" && wget -O ~/bin/diff-highlight "https://raw.githubusercontent.com/git/git/master/contrib/diff-highlight/diff-highlight" && chmod +x ~/bin/diff-highlight
 }
 
-confirm "Install local files?" && stow -t ~ files
+confirm "Install local files?" && stow -t ~ user_files
+confirm "Install system files?" && sudo stow -t / root_files
 confirm "Install install remote?" && install_remote_files

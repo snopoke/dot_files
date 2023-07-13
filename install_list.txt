@@ -36,17 +36,19 @@ obs studio
 tixati
 
 repos:
-dimagi/commcare-hq
-dimagi/commcare-cloud
-dimagi/formplayer
+git clone git@github.com:snopoke/dot_files.git
 
-taskbadger/taskbadger
-taskbadger/taskbadger-python
-taskbadger/taskbadger-docs
+git clone git@github.com:dimagi/commcare-hq.git
+git clone git@github.com:dimagi/commcare-cloud.git
+git clone git@github.com:dimagi/formplayer.git
 
-czue/wedding-plan
-czue/pegasus
-czue/pegasus-site
-czue/pegasus-docs
+git clone git@github.com:taskbadger/taskbadger.git
+git clone git@github.com:taskbadger/taskbadger-python.git
+git clone git@github.com:taskbadger/taskbadger-docs.git
 
-snopoke/dot_files
+git clone git@github.com:czue/wedding-plan.git
+git clone git@github.com:czue/pegasus.git
+git clone git@github.com:czue/pegasus-site.git
+git clone git@github.com:czue/pegasus-docs.git
+
+

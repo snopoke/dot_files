@@ -2,7 +2,7 @@
 # exports and vars
 ############################################
 export GRADLE_HOME=~/dev/gradle-2.5
-export PATH=$PATH:~/bin
+export PATH=$PATH:~/bin:~/.local/bin
 export EDITOR=vi
 test -f ~/.pythonrc && export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
