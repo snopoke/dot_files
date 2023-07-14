@@ -57,4 +57,10 @@ ExcludePath ^/dev/
 ExcludePath ^/proc/
 ExcludePath ^/sys/
 
+TASKBADGER_API_KEY="evJPDu17.m4c0PRikHxd9UAln145DBBY8NdERhHbE"
+TASKBADGER_ORG="simongdkelly"
+TASKBADGER_PROJECT="clamav"
+
+1 9 * * * taskbadger run 'clamav scan' --action error email to:simongdkelly@gmail.com --monitor-id=941bk5zdBi1zcN1nFmwAMs7VB1 --capture-output -- /usr/local/bin/clamscan_daily.sh > /dev/null 2>&1
+
 
