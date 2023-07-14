@@ -51,4 +51,10 @@ git clone git@github.com:czue/pegasus.git
 git clone git@github.com:czue/pegasus-site.git
 git clone git@github.com:czue/pegasus-docs.git
 
+# Clamav
+/etc/clamav/clamd.conf
+ExcludePath ^/dev/
+ExcludePath ^/proc/
+ExcludePath ^/sys/
+
 
