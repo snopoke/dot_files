@@ -11,9 +11,10 @@ export PYTHONDONTWRITEBYTECODE=1
 export ANSIBLE_HOST_KEY_CHECKING=False
 export ANSIBLE_NOCOWS=1
 export WORKON_HOME=~/.virtualenvs
-export COMMCARE_CLOUD_ENVIRONMENTS=/home/skelly/src/commcare-cloud/environments
+export COMMCARE_CLOUD_ENVIRONMENTS=~/src/commcare-cloud/environments
 export COMMCARE_CLOUD_USE_AWS_SSM=1
 export CCHQ_STRICT_WARNINGS=1
+export SSH_AUTH_SOCK=~/.1password/agent.sock
 
 # git-prompt
 export GIT_PS1_SHOWDIRTYSTATE=1  # shown as '*' for unsaged and '+' for staged
@@ -22,7 +23,11 @@ export GIT_PS1_SHOWUNTRACKEDFILES=1  # shown as '%'
 export GIT_PS1_SHOWCOLORHINTS=1
 
 # commcare-cloud
-source ~/.commcare-cloud/load_config.sh
+CCHQ_VIRTUALENV=${CCHQ_VIRTUALENV:-cchq}
+CCHQ_BIN=~/.virtualenvs/$CCHQ_VIRTUALENV/bin
+alias cchq="$CCHQ_BIN/cchq"
+alias ccp="cchq production"
+alias ccpssh="cchq production ssh"
 
 # fly.io
 export FLYCTL_INSTALL="/home/skelly/.fly"
@@ -41,6 +46,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+source <(op completion bash)
 
 ############################################
 # aliases
@@ -77,10 +83,7 @@ alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
 alias gu='git pull origin $(branch)'
 alias lock='bash -c "sleep 1 && xtrlock"'
-alias start_docker='cd ~/src/cchq && ./scripts/docker up -d && ./scripts/docker citus up -d'
 alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
-alias ccp="cchq production"
-alias ccpssh="cchq production ssh"
 alias elastichq="docker run -p 5000:5000 elastichq/elasticsearch-hq"
 alias peek="flatpak run com.uploadedlobster.peek"
 alias hq-up="./scripts/docker up -d postgres couch redis elasticsearch2 zookeeper kafka minio formplayer"
@@ -154,31 +157,31 @@ function set_prompt() {
 export PROMPT_COMMAND=set_prompt
 
 ############################################
-# SSH Agent
+# SSH Agent (replaced by 1password)
 ############################################
 
-SSH_ENV="$HOME/.ssh/environment"
+# SSH_ENV="$HOME/.ssh/environment"
 
-function start_agent {
-     echo "Initialising new SSH agent..."
-     /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
-     echo succeeded
-     chmod 600 "${SSH_ENV}"
-     . "${SSH_ENV}" > /dev/null
-     /usr/bin/ssh-add;
-}
+# function start_agent {
+#      echo "Initialising new SSH agent..."
+#      /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+#      echo succeeded
+#      chmod 600 "${SSH_ENV}"
+#      . "${SSH_ENV}" > /dev/null
+#      /usr/bin/ssh-add;
+# }
 
-# Source SSH settings, if applicable
+# # Source SSH settings, if applicable
 
-if [ -f "${SSH_ENV}" ]; then
-     . "${SSH_ENV}" > /dev/null
-     #ps ${SSH_AGENT_PID} doesn't work under cywgin
-     ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-         start_agent;
-     }
-else
-     start_agent;
-fi
+# if [ -f "${SSH_ENV}" ]; then
+#      . "${SSH_ENV}" > /dev/null
+#      #ps ${SSH_AGENT_PID} doesn't work under cywgin
+#      ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+#          start_agent;
+#      }
+# else
+#      start_agent;
+# fi
 
 
 ############################################
