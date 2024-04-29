@@ -26,6 +26,7 @@ export GIT_PS1_SHOWCOLORHINTS=1
 CCHQ_VIRTUALENV=${CCHQ_VIRTUALENV:-cchq}
 CCHQ_BIN=~/.virtualenvs/$CCHQ_VIRTUALENV/bin
 alias cchq="$CCHQ_BIN/cchq"
+alias commcare-cloud="$CCHQ_BIN/cchq"
 alias ccp="cchq production"
 alias ccpssh="cchq production ssh"
 
@@ -72,7 +73,7 @@ alias gs="git stash"
 alias gsl="git stash list"
 alias blame="git log -p -M --follow --stat -- "
 alias br='for k in `git branch | perl -pe s/^..//`; do echo -e `git show --pretty=format:"%Cgreen%ci %Cblue%cr%Creset" $k -- | head -n 1`\\t$k; done | sort -r'
-alias um="update-code-sk"
+alias um="update-code-sk master"
 alias umm="update-code-sk main"
 alias umf="update-code-sk formplayer"
 alias umd="update-code-sk develop"
@@ -86,73 +87,34 @@ alias lock='bash -c "sleep 1 && xtrlock"'
 alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
 alias elastichq="docker run -p 5000:5000 elastichq/elasticsearch-hq"
 alias peek="flatpak run com.uploadedlobster.peek"
-alias hq-up="./scripts/docker up -d postgres couch redis elasticsearch2 zookeeper kafka minio formplayer"
-alias hq-up-min="./scripts/docker up -d postgres couch redis elasticsearch2 zookeeper kafka minio"
+alias hq-up="./scripts/docker up -d postgres couch redis elasticsearch5 zookeeper kafka minio formplayer"
+alias hq-up-min="./scripts/docker up -d postgres couch redis elasticsearch5 zookeeper kafka minio"
 alias docker-compose="docker compose"
 alias workon="pyenv activate"
 
 ############################################
 # PROMPT
-# http://engineerwithoutacause.com/show-current-virtualenv-on-bash-prompt.html
+# https://bash-prompt-generator.org/
 ############################################
-RED='\[\033[31m\]'
-GREEN='\[\033[32m\]'
-YELLOW='\[\033[33m\]'
-BLUE='\[\033[34m\]'
-PURPLE='\[\033[35m\]'
-CYAN='\[\033[36m\]'
-WHITE='\[\033[37m\]'
-NIL='\[\033[00m\]'
+NIL='\[\e[0m\]'
 
-# Hostname styles
-FULL='\H'
-SHORT='\h'
-
-# System => color/hostname map:
-# UC: username color
-# LC: location/cwd color
-# HD: hostname display (\h vs \H)
-# Defaults:
-UC=$GREEN
-LC=$BLUE
-HD=$FULL
-
-
-# Prompt function because PROMPT_COMMAND is awesome
-function set_prompt() {
-    # show the host only and be done with it.
-    host="${UC}${HD}${NIL}"
-
-    # Special vim-tab-like shortpath (~/folder/directory/foo => ~/f/d/foo)
-    _pwd=`pwd | sed "s#$HOME#~#"`
-    if [[ $_pwd == "~" ]]; then
-       _dirname=$_pwd
-    else
-       _dirname=`dirname "$_pwd" `
-        if [[ $_dirname == "/" ]]; then
-              _dirname=""
-        fi
-       _dirname="$_dirname/`basename "$_pwd"`"
-    fi
-    path="${LC}${_dirname}${NIL}"
-    myuser="${UC}\u@${NIL}"
-
-    # Dollar/pound sign
-    end="${LC}\$${NIL} "
-
+function set_prompt {
+    GIT='$(__git_ps1 " (%s)")'
+    DATE="\[\e[2m\]\D{%Y-%m-%d} \t"
+    PATH_=" \[\e[38;5;33m\]\w${NIL}"
     # Virtual Env
     if [[ $VIRTUAL_ENV != "" ]]
        then
-           venv=" ${RED}(${VIRTUAL_ENV##*/})"
+           venv=" \[\033[31m\](${VIRTUAL_ENV##*/})${NIL}"
     else
        venv=''
     fi
-    
-    GIT='$(__git_ps1 " (%s)")'
-    export PS1="\[\e]0;\u@\h: \w\a\]${myuser}${path}${venv}${NIL}${GIT}${end}"
+    end="\[\e[38;5;28m\]\$${NIL}"
+    export PS1="${DATE}${NIL}${venv}${GIT}${PATH_} ${end} "
     # simple ps1 for demos
     # export PS1="\[\e]0;\u@\h: \w\a\] ${end}"
 }
+
 
 export PROMPT_COMMAND=set_prompt
 
@@ -219,46 +181,6 @@ function hammer() {
 
 function gsa() {
 	git stash apply "stash@{$1}"
-}
-
-function vpnshow() {
-  vpns1=`ps ax -o args | grep -v grep | grep vpnc | cut -d " " -f2 | paste -sd "," -`
-  vpns2=`nmcli c show --active | grep vpn | cut -d' ' -f1 | paste -sd "," -`
-  printf "$vpns1\n$vpns2" | grep -Ev "^$" | paste -sd ","
-}
-
-function vu() {
-    vpn=$1
-    if [ "$vpn" == "prod" ]; then
-      nmcli c up aws_prod
-    elif [ "$vpn" == "staging" ]; then
-      nmcli c up aws_staging
-    elif [ "$vpn" == "india" ]; then
-      nmcli c up aws_india
-      #MotionPro &
-    elif [ "$vpn" == "tcl" ]; then
-      sudo openfortivpn -c /etc/openfortivpn/tcl.config
-    elif [ "$vpn" == "va" ]; then
-      sudo vpnc-connect rackspace-va
-    else
-      nmcli c up "$vpn"
-    fi
-}
-
-function vd() {
-    vpn="$1"
-    if [ "$vpn" == "prod" ]; then
-      nmcli c down aws_prod
-    elif [ "$vpn" == "staging" ]; then
-      nmcli c down aws_staging
-    elif [ "$vpn" == "india" ]; then
-      nmcli c down aws_india
-      #MotionPro &
-    elif [ "$vpn" == "va" ]; then
-      sudo vpnc-disconnect
-    else
-      nmcli c down "$vpn"
-    fi
 }
 
 function delete-pyc() {
@@ -331,11 +253,11 @@ function docker_cleanup() {
     fi
 
     sudo docker run \
-      --rm
+      --rm \
       -v /var/run/docker.sock:/var/run/docker.sock:rw \
       -v /var/lib/docker:/var/lib/docker:rw \
       -e CLEAN_PERIOD=3600 \
-      -e LOOP=false
+      -e LOOP=false \
       -e KEEP_IMAGES=redis:latest,klaemo/couchdb:latest,postgres:9.4,python:2.7,elasticsearch:1.7.4,dimagi/commcarehq_base:latest,hqservice_postgres:latest,hqservice_elasticsearch:latest,commcarehq_web,spotify/kafka \
       --name=docker-cleanup \
       -d \

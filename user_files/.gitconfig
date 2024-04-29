@@ -34,6 +34,7 @@
   renameLimit = 2000
 [branch]
   autosetuprebase = always
+	sort = -committerdate
 [apply]
   whitespace = nowarn
 
@@ -144,3 +145,7 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[rerere]
+	enabled = true
+[column]
+	ui = auto
