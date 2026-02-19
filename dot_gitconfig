@@ -134,8 +134,8 @@
     #subtree add
     sba = "!f() { git subtree add --prefix $2 $1 master --squash; }; f"
 [core]
-	editor = vi
-    page = /usr/share/doc/git/contrib/diff-highlight/diff-highlight | less
+	editor = nvim
+	pager = less -FRX
 	autocrlf = input
 [init]
 	defaultBranch = main
