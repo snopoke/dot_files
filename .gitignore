@@ -1,3 +1,8 @@
-files/bin/dropbox
-files/bin/diff-highlight
-.idea
+# editor
+*.swp
+*.swo
+*~
+.idea/
+
+# OS
+.DS_Store
