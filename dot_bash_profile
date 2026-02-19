@@ -3,7 +3,7 @@
 ############################################
 export GRADLE_HOME=~/dev/gradle-2.5
 export PATH=$PATH:~/bin:~/.local/bin
-export EDITOR=vi
+export EDITOR=nvim
 test -f ~/.pythonrc && export PYTHONSTARTUP=~/.pythonrc
 export TERM="xterm-color"
 export REUSE_DB=1
@@ -27,18 +27,6 @@ export GIT_PS1_SHOWSTASHSTATE=1  # shown as '$'
 export GIT_PS1_SHOWUNTRACKEDFILES=1  # shown as '%'
 export GIT_PS1_SHOWCOLORHINTS=1
 
-# commcare-cloud
-# CCHQ_VIRTUALENV=${CCHQ_VIRTUALENV:-cchq}
-# CCHQ_BIN=~/.virtualenvs/$CCHQ_VIRTUALENV/bin
-# alias cchq="$CCHQ_BIN/cchq"
-# alias commcare-cloud="$CCHQ_BIN/cchq"
-# alias ccp="cchq production"
-# alias ccpssh="cchq production ssh"
-
-# fly.io
-export FLYCTL_INSTALL="/home/skelly/.fly"
-export PATH="$FLYCTL_INSTALL/bin:$PATH"
-
 india='.india.commcarehq.org'
 
 source ~/.git-prompt.sh
@@ -54,9 +42,8 @@ source <(op completion bash)
 ############################################
 # aliases
 ############################################
-alias bp="codium ~/.bash_profile"
+alias bp="nvim ~/.bash_profile"
 alias rl="source ~/.bash_profile"
-alias ll="ls -al"
 alias g="git"; __git_complete g __git_main
 alias l="git status -s"
 alias d="git diff"
@@ -85,10 +72,6 @@ alias gpo='git push origin $(branch)'
 alias gpof='git push origin $(branch) --force'
 alias gap='git add -p'
 alias gu='git pull origin $(branch)'
-alias lock='bash -c "sleep 1 && xtrlock"'
-alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
-alias elastichq="docker run -p 5000:5000 elastichq/elasticsearch-hq"
-alias peek="flatpak run com.uploadedlobster.peek"
 alias hq-up="./scripts/docker up -d postgres couch redis elasticsearch5 zookeeper kafka minio formplayer"
 alias hq-up-min="./scripts/docker up -d postgres couch redis elasticsearch6 zookeeper kafka minio"
 alias docker-compose="docker compose"
@@ -97,9 +80,17 @@ alias dbu="docker compose --file ~/dev/docker-compose.yml up -d"
 alias dbd="docker compose --file ~/dev/docker-compose.yml down"
 alias psqld="psql -h localhost -U postgres"
 alias yolo="claude --dangerously-skip-permissions"
-alias cat="batcat"
+
+# modern CLI tools
+alias lg="lazygit"
+alias hq="harlequin"
+alias cat="bat --paging=never"
 alias ls="eza"
-# alias pip="uv pip"
+alias ll="eza -la --git"
+alias tree="eza --tree"
+
+# AI tools
+alias cc="claude"
 
 ############################################
 # PROMPT
@@ -126,33 +117,6 @@ function set_prompt {
 
 
 export PROMPT_COMMAND=set_prompt
-
-############################################
-# SSH Agent (replaced by 1password)
-############################################
-
-# SSH_ENV="$HOME/.ssh/environment"
-
-# function start_agent {
-#      echo "Initialising new SSH agent..."
-#      /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
-#      echo succeeded
-#      chmod 600 "${SSH_ENV}"
-#      . "${SSH_ENV}" > /dev/null
-#      /usr/bin/ssh-add;
-# }
-
-# # Source SSH settings, if applicable
-
-# if [ -f "${SSH_ENV}" ]; then
-#      . "${SSH_ENV}" > /dev/null
-#      #ps ${SSH_AGENT_PID} doesn't work under cywgin
-#      ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
-#          start_agent;
-#      }
-# else
-#      start_agent;
-# fi
 
 
 ############################################
