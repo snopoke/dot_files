@@ -42,7 +42,7 @@ source <(op completion bash)
 ############################################
 # aliases
 ############################################
-alias bp="nvim ~/.bash_profile"
+alias bp="chezmoi edit --apply ~/.bash_profile"
 alias rl="source ~/.bash_profile"
 alias g="git"; __git_complete g __git_main
 alias l="git status -s"
