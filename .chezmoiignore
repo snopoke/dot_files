@@ -4,8 +4,6 @@ root/
 LICENSE
 README.md
 .github/
-install_dot.sh
-install_list.txt
 
 # Claude Code runtime/generated files
 .claude/.credentials.json

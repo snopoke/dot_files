@@ -1,0 +1,16 @@
+[".config/nvim"]
+    type = "git-repo"
+    url = "https://github.com/snopoke/kickstart.nvim.git"
+    refreshPeriod = "168h"
+    [".config/nvim".pull]
+        args = ["--ff-only"]
+
+[".git-prompt.sh"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh"
+    refreshPeriod = "720h"
+
+[".git-completion.bash"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash"
+    refreshPeriod = "720h"
