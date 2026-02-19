@@ -1,0 +1,43 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/home/skelly/.nvm/versions/node/v22.14.0/lib/node_modules/rins_hooks/hooks/notification/index.js\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/skelly/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "code-review-ai@claude-code-workflows": false,
+    "python-development@claude-code-workflows": true,
+    "unit-testing@claude-code-workflows": true,
+    "incident-response@claude-code-workflows": true,
+    "frontend-design@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "showboat@showboat-claude-plugin": true,
+    "python-code-simplifier@skills-curated": true,
+    "context7@claude-plugins-official": true,
+    "humanizer@skills-curated": true,
+    "planning-with-files@skills-curated": true,
+    "coderabbit@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true
+  },
+  "skipDangerousModePermissionPrompt": true
+}

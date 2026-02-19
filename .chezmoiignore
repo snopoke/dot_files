@@ -6,3 +6,20 @@ README.md
 .github/
 install_dot.sh
 install_list.txt
+
+# Claude Code runtime/generated files
+.claude/.credentials.json
+.claude/__store.db
+.claude/debug/
+.claude/file-history/
+.claude/history.jsonl
+.claude/paste-cache/
+.claude/plans/
+.claude/plugins/
+.claude/projects/
+.claude/session-env/
+.claude/backups/
+.claude/cache/
+.claude/chrome/
+.claude/downloads/
+.claude/ide/
