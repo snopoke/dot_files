@@ -1,6 +1,6 @@
 [user]
-	name = Simon Kelly
-	email = skelly@dimagi.com
+    name = Simon Kelly
+    email = skelly@dimagi.com
 
 [color]
     branch = auto
@@ -149,3 +149,5 @@
 	enabled = true
 [column]
 	ui = auto
+[coderabbit]
+	machineId = cli/71f6d43522ef4e99b91b1b945cdc5d7e

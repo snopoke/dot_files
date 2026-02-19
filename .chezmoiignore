@@ -1,0 +1,8 @@
+# Don't apply these to home directory
+docs/
+root/
+LICENSE
+README.md
+.github/
+install_dot.sh
+install_list.txt

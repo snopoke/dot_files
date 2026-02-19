@@ -16,6 +16,11 @@ export COMMCARE_CLOUD_USE_AWS_SSM=1
 export CCHQ_STRICT_WARNINGS=1
 export SSH_AUTH_SOCK=~/.1password/agent.sock
 
+# android
+export ANDROID_HOME=/home/skelly/dev/android
+export ANDROID_SDK_ROOT=/home/skelly/dev/android
+export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
+
 # git-prompt
 export GIT_PS1_SHOWDIRTYSTATE=1  # shown as '*' for unsaged and '+' for staged
 export GIT_PS1_SHOWSTASHSTATE=1  # shown as '$'
@@ -23,12 +28,12 @@ export GIT_PS1_SHOWUNTRACKEDFILES=1  # shown as '%'
 export GIT_PS1_SHOWCOLORHINTS=1
 
 # commcare-cloud
-CCHQ_VIRTUALENV=${CCHQ_VIRTUALENV:-cchq}
-CCHQ_BIN=~/.virtualenvs/$CCHQ_VIRTUALENV/bin
-alias cchq="$CCHQ_BIN/cchq"
-alias commcare-cloud="$CCHQ_BIN/cchq"
-alias ccp="cchq production"
-alias ccpssh="cchq production ssh"
+# CCHQ_VIRTUALENV=${CCHQ_VIRTUALENV:-cchq}
+# CCHQ_BIN=~/.virtualenvs/$CCHQ_VIRTUALENV/bin
+# alias cchq="$CCHQ_BIN/cchq"
+# alias commcare-cloud="$CCHQ_BIN/cchq"
+# alias ccp="cchq production"
+# alias ccpssh="cchq production ssh"
 
 # fly.io
 export FLYCTL_INSTALL="/home/skelly/.fly"
@@ -36,9 +41,6 @@ export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 india='.india.commcarehq.org'
 
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 source ~/.git-prompt.sh
 source ~/.git-completion.bash
 
@@ -88,9 +90,16 @@ alias dimagi-gpg="gpg --keyring dimagi.gpg --no-default-keyring"
 alias elastichq="docker run -p 5000:5000 elastichq/elasticsearch-hq"
 alias peek="flatpak run com.uploadedlobster.peek"
 alias hq-up="./scripts/docker up -d postgres couch redis elasticsearch5 zookeeper kafka minio formplayer"
-alias hq-up-min="./scripts/docker up -d postgres couch redis elasticsearch5 zookeeper kafka minio"
+alias hq-up-min="./scripts/docker up -d postgres couch redis elasticsearch6 zookeeper kafka minio"
 alias docker-compose="docker compose"
 alias workon="pyenv activate"
+alias dbu="docker compose --file ~/dev/docker-compose.yml up -d"
+alias dbd="docker compose --file ~/dev/docker-compose.yml down"
+alias psqld="psql -h localhost -U postgres"
+alias yolo="claude --dangerously-skip-permissions"
+alias cat="batcat"
+alias ls="eza"
+# alias pip="uv pip"
 
 ############################################
 # PROMPT
@@ -175,7 +184,7 @@ function hammer() {
     update-code-sk
     delete-merged
     pip install -r requirements/requirements.txt
-    find . -name '*.pyc' -delete
+    find . \( -path ./.direnv -o -path ./venv \) -prune -name '*.pyc' -delete
     ./manage.py migrate
 }
 
@@ -184,7 +193,7 @@ function gsa() {
 }
 
 function delete-pyc() {
-    find . -name '*.pyc' -delete
+    find . -name '*.pyc' -not -path './.venv/*' -delete
 }
 
 function pull-latest-branch() {
@@ -265,3 +274,6 @@ function docker_cleanup() {
 }
 
 eval "$(direnv hook bash)"
+. "$HOME/.cargo/env"
+
+. "$HOME/.atuin/bin/env"
