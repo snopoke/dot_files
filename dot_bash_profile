@@ -88,6 +88,8 @@ alias cat="bat --paging=never"
 alias ls="eza"
 alias ll="eza -la --git"
 alias tree="eza --tree"
+alias vi="nvim"
+alias vim="nvim"
 
 # AI tools
 alias cc="claude"

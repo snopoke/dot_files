@@ -84,6 +84,12 @@ if ! command -v atuin &> /dev/null; then
     bash <(curl https://raw.githubusercontent.com/atuinsh/atuin/main/install.sh)
 fi
 
+# uv
+if ! command -v uv &> /dev/null; then
+    echo "Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+fi
+
 # chezmoi (self-install for new machines)
 if ! command -v chezmoi &> /dev/null; then
     sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
@@ -99,19 +105,16 @@ if command -v npm &> /dev/null; then
     npm install -g @johnlindquist/worktree 2>/dev/null || true
     npm install -g @anthropic-ai/claude-code 2>/dev/null || true
     npm install -g @openai/codex 2>/dev/null || true
+    npm install -g portless 2>/dev/null || true
 else
     echo "npm not found. Install nvm first, then re-run."
 fi
 
-echo "=== Installing pip tools ==="
-if command -v pipx &> /dev/null; then
-    pipx install harlequin 2>/dev/null || true
-    pipx inject harlequin harlequin-postgres 2>/dev/null || true
-elif command -v pip &> /dev/null; then
-    pip install --user harlequin 2>/dev/null || true
-    pip install --user harlequin-postgres 2>/dev/null || true
+echo "=== Installing Python tools (via uv) ==="
+if command -v uv &> /dev/null; then
+    uv tool install harlequin --with harlequin-postgres 2>/dev/null || true
 else
-    echo "pip/pipx not found. Install Python first."
+    echo "uv not found. Something went wrong with installation."
 fi
 
 echo "=== Desktop apps (install manually) ==="
