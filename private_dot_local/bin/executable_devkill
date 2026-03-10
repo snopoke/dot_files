@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# devkill — find and kill running dev servers interactively
+# Uses fzf for multi-select; supports SIGTERM (default) or SIGKILL (-9 flag)
+
+set -euo pipefail
+
+SIGNAL="TERM"
+if [[ "${1:-}" == "-9" || "${1:-}" == "--force" ]]; then
+  SIGNAL="KILL"
+fi
+
+# Patterns: (label, process match regex)
+# Order matters — more specific patterns first
+PATTERNS=(
+  "django|manage.py runserver"
+  "uvicorn|uvicorn"
+  "celery|celery"
+  "honcho|honcho"
+  "vite|vite"
+  "bun dev|bun dev"
+  "bun run|bun run"
+  "webpack|webpack"
+  "next.js|next"
+  "nuxt|nuxt"
+  "nest|nestjs"
+  "fastapi|fastapi"
+  "flask|flask"
+  "node server|node.*server"
+  "ts-node|ts-node"
+  "nodemon|nodemon"
+  "npm run dev|npm.*run.*dev"
+  "npm start|npm.*start"
+  "yarn dev|yarn.*dev"
+  "pnpm dev|pnpm.*dev"
+)
+
+# Build a combined grep pattern from all process matchers
+COMBINED_PATTERN=$(printf '%s\n' "${PATTERNS[@]}" | cut -d'|' -f2 | paste -sd'|' -)
+
+# Collect matching processes (exclude self, grep, and this script)
+SELF_PID=$$
+PARENT_PID=$PPID
+
+mapfile -t PROCS < <(
+  ps -eo pid,ppid,user,etime,args --no-headers \
+    | grep -E "$COMBINED_PATTERN" \
+    | grep -v grep \
+    | grep -v "devkill" \
+    | awk -v self="$SELF_PID" -v parent="$PARENT_PID" '$1 != self && $1 != parent' \
+    | sort -k4 -r  # sort by elapsed time, longest-running first
+)
+
+if [[ ${#PROCS[@]} -eq 0 ]]; then
+  echo "No dev servers found."
+  exit 0
+fi
+
+# Format for display: label | PID | user | uptime | short command
+format_proc() {
+  local line="$1"
+  local pid user etime
+  pid=$(echo "$line" | awk '{print $1}')
+  user=$(echo "$line" | awk '{print $3}')
+  etime=$(echo "$line" | awk '{print $4}')
+  # Trim command to 80 chars
+  local cmd
+  cmd=$(echo "$line" | awk '{for(i=5;i<=NF;i++) printf $i" "; print ""}' | cut -c1-80)
+
+  # Find matching label
+  local label="dev"
+  for pat in "${PATTERNS[@]}"; do
+    local lbl="${pat%%|*}"
+    local regex="${pat##*|}"
+    if echo "$cmd" | grep -qE "$regex"; then
+      label="$lbl"
+      break
+    fi
+  done
+
+  printf "%-12s  %-7s  %-8s  %-6s  %s\n" "[$label]" "PID:$pid" "$user" "$etime" "$cmd"
+}
+
+# Build display lines
+DISPLAY_LINES=()
+for proc in "${PROCS[@]}"; do
+  DISPLAY_LINES+=("$(format_proc "$proc")")
+done
+
+# fzf multi-select
+HEADER="Select processes to kill (TAB=multi-select, ENTER=confirm, ESC=cancel) [signal: SIG${SIGNAL}]"
+SELECTED=$(
+  printf '%s\n' "${DISPLAY_LINES[@]}" \
+    | fzf --multi \
+          --header="$HEADER" \
+          --layout=reverse \
+          --prompt="devkill> " \
+          --bind="ctrl-a:select-all" \
+          --height=40% \
+          --min-height=10 \
+          --no-sort \
+    || true
+)
+
+if [[ -z "$SELECTED" ]]; then
+  echo "Nothing selected."
+  exit 0
+fi
+
+# Extract PIDs from selection (column 2, strip "PID:")
+PIDS=()
+while IFS= read -r line; do
+  pid=$(echo "$line" | awk '{print $2}' | sed 's/PID://')
+  PIDS+=("$pid")
+done <<< "$SELECTED"
+
+echo ""
+echo "Sending SIG${SIGNAL} to ${#PIDS[@]} process(es):"
+for pid in "${PIDS[@]}"; do
+  # Find process name for display
+  proc_name=$(ps -p "$pid" -o args= 2>/dev/null | cut -c1-60 || echo "(already gone)")
+  echo "  kill -${SIGNAL} $pid  ($proc_name)"
+  kill "-${SIGNAL}" "$pid" 2>/dev/null || echo "  Warning: could not kill PID $pid (may already be gone)"
+done
+
+echo ""
+echo "Done."
