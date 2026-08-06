@@ -72,12 +72,6 @@ if ! command -v tailscale &> /dev/null; then
     curl -fsSL https://tailscale.com/install.sh | sh
 fi
 
-# pyenv
-if ! command -v pyenv &> /dev/null; then
-    echo "Installing pyenv..."
-    curl https://pyenv.run | bash
-fi
-
 # atuin
 if ! command -v atuin &> /dev/null; then
     echo "Installing atuin..."
