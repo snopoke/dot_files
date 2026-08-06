@@ -90,6 +90,18 @@ if ! command -v uv &> /dev/null; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
 
+# safe-chain (Aikido supply-chain guard for npm/pip/uv/etc)
+# Bump SAFE_CHAIN_VERSION + SHA256 together from https://github.com/AikidoSec/safe-chain
+if [ ! -x "$HOME/.safe-chain/bin/safe-chain" ]; then
+    echo "Installing safe-chain..."
+    SAFE_CHAIN_VERSION=1.5.15
+    SAFE_CHAIN_SHA256=de0565e3d6346407a604e84e639e95fea8758748063da2216bbfdca5feda5dd2
+    curl -fsSL "https://github.com/AikidoSec/safe-chain/releases/download/${SAFE_CHAIN_VERSION}/install-safe-chain.sh" -o /tmp/install-safe-chain.sh
+    echo "${SAFE_CHAIN_SHA256}  /tmp/install-safe-chain.sh" | sha256sum -c -
+    sh /tmp/install-safe-chain.sh
+    rm /tmp/install-safe-chain.sh
+fi
+
 # chezmoi (self-install for new machines)
 if ! command -v chezmoi &> /dev/null; then
     sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
